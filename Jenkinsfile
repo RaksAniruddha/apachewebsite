@@ -18,7 +18,7 @@ pipeline {
         stage('Docker Build & Push') {
             steps {
                 script {
-                    withDockerRegistry(credentialsId: 'docker', toolName: 'docker') {
+                    withDockerRegistry([ credentialsId: 'docker', url: 'https://index.docker.io/v1/' ]) {
                         sh ''' 
                         echo "Building Docker image..."
                         docker build --no-cache -t $DOCKER_IMAGE -f apachewebsite/Dockerfile apachewebsite
@@ -32,4 +32,5 @@ pipeline {
 
     }
 }
+
 
