@@ -2,6 +2,7 @@ pipeline {
     agent any
       environment {
         DOCKER_IMAGE = 'anirudev/apachewebsite:latest'
+        KUBECONFIG = credentials('kubeconfig')
     }
 
     stages {
@@ -25,13 +26,30 @@ pipeline {
                     echo "Pushing Docker image to Docker Hub..."
                     docker push $DOCKER_IMAGE
                     '''
+                    }
+                }
+            }
+        }
+        stage('Deploy to Kubernetes') {
+            steps {
+                script {
+                    withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG_FILE')]) {
+                        sh '''
+                        echo "Deploying to Kubernetes..."
+                        export KUBECONFIG=$KUBECONFIG_FILE
+
+                        kubectl apply -f deployment.yml
+                        kubectl apply -f service.yml
+
+                        echo "Deployment and Service applied successfully!"
+                        '''
+                    }
                 }
             }
         }
     }
-
-    }
 }
+
 
 
 
